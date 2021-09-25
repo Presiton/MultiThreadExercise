@@ -1,51 +1,38 @@
 #include <iostream>
-#include <mutex>
 #include <thread>
-#include <functional>
-#include <string>
-#include <chrono>
 #include "RuntimeMeasure.hpp"
 
-//function object 仿函数
-struct A
+void sumlong(long start, long end, long &ans)
 {
-    void operator()(std::string &s)
+    long s = 0;
+    for (long i = start; i < end; ++i)
     {
-        std::cout << s << std::endl;
+        s += i;
     }
-};
-
-void threadtest()
-{
-    std::string a = "furyhorn";
-    std::thread f1 = std::thread([&a]()
-                                 {
-                                     long long sum = 0;
-                                     for (int i = 0; i < 100000000; ++i)
-                                     {
-                                         sum += i;
-                                     }
-                                     std::cout << a << std::endl;
-                                     std::cout << sum << std::endl;
-                                 });
-    f1.join();
+    ans = s;
 }
+
+const long s = 1000000000;
 
 int main()
 {
-    std::string a = "abc";
-    std::thread t1 = std::thread(A(), std::ref(a));
-    t1.join();
-    auto f = [&a](int c, int d)//lambda表达式 匿名函数
-    {
-        std::cout << a << std::endl;
-        std::cout << c + d << std::endl;
-    };
-    f(1, 2);
+    TimeMeasure([]()
+                {
+                    long ans1, ans2, ans3;
+                    std::thread t1 = std::thread(sumlong, 0, s / 3, std::ref(ans1));
+                    std::thread t2 = std::thread(sumlong, s / 3, (s * 2) / 3, std::ref(ans2));
+                    std::thread t3 = std::thread(sumlong, (s*2)/3, s, std::ref(ans3));
+                    t1.join();
+                    t2.join();
+                    t3.join();
+                    std::cout << "3 threads: " << (ans1 + ans2 + ans3) << std::endl;
+                });
 
     TimeMeasure([]()
                 {
-                    threadtest();
+                    long ans4;
+                    sumlong(0, s, std::ref(ans4));
+                    std::cout << "1 threads: " << ans4 << std::endl;
                 });
     return 0;
 }

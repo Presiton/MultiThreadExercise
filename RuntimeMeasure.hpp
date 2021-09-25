@@ -18,5 +18,13 @@ void TimeMeasure(T&& func)
     std::cout << "elapsed: " << diff.count() << " seconds" << std::endl;
 }
 
+//function object ·Âº¯Êý
+//struct A
+//{
+//    void operator()(std::string &s)
+//    {
+//        std::cout << s << std::endl;
+//    }
+//};
 
 #endif //MUTEXEXERCISE_RUNTIMEMEASURE_HPP
